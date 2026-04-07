@@ -67,7 +67,7 @@
                 <MenuItem Header="Open Game"/>
                 <MenuItem Header="Save Game"/>
                 <Separator/>
-                <MenuItem Header="Statistics"/>
+                <MenuItem Header="Statistics" Command="{Binding ShowStatisticsCommand}"/>
                 <Separator/>
                 <MenuItem Header="Cancel"/>
             </MenuItem>
@@ -80,7 +80,7 @@
                 <MenuItem Header="Cars" IsCheckable="True" IsChecked="{Binding IsCarsChecked}" Command="{Binding ChangeCategoryCommand}" CommandParameter="Cars"/>
             </MenuItem>
             <MenuItem Header="Help">
-                <MenuItem Header="About"/>
+                <MenuItem Header="About" Command="{Binding AboutCommand}"/>
             </MenuItem>
         </Menu>
 
@@ -99,11 +99,25 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="White" CornerRadius="30" Width="55" Height="55" Padding="3"
-                            BorderBrush="#FFB3C6" BorderThickness="2">
-                        <Image Source="{Binding UserImagePath, Converter={StaticResource RelativePathConverter}}" 
-                               Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <Border Width="56" Height="56" CornerRadius="28" 
+                            BorderBrush="#FFB3C6" BorderThickness="2" Padding="2" Background="White">
+
+                        <Border CornerRadius="26">
+                            <Border.OpacityMask>
+                                <VisualBrush Stretch="Uniform">
+                                    <VisualBrush.Visual>
+                                        <Ellipse Fill="Black" Width="48" Height="48"/>
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Border.OpacityMask>
+
+                            <Image Source="{Binding UserImagePath, Converter={StaticResource RelativePathConverter}}" 
+                                   Stretch="UniformToFill" 
+                                   RenderOptions.BitmapScalingMode="HighQuality"
+                                   Width="48" Height="48"/>
+                        </Border>
                     </Border>
+
                     <TextBlock Text="{Binding UserName}" FontSize="18" FontWeight="Bold" Foreground="#D6336C"
                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                 </StackPanel>
@@ -135,8 +149,12 @@
 
                 <Border Grid.Column="0" Background="White" CornerRadius="15" Margin="0,0,10,0"
                         BorderBrush="#FFB3C6" BorderThickness="2">
-                    <Image Source="{Binding HangmanImage, Converter={StaticResource RelativePathConverter}}" 
-                           Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <Border CornerRadius="13">
+                        <Border.Background>
+                            <ImageBrush ImageSource="{Binding HangmanImage, Converter={StaticResource RelativePathConverter}}" 
+                                        Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Border.Background>
+                    </Border>
                 </Border>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">

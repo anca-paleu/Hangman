@@ -19,11 +19,13 @@ namespace Hangman.ViewModel
         private int _mistakes;
         private string _displayedWord;
         private string _secretWord;
+        private string _secretWordCategory;
 
         private DispatcherTimer _timer;
         private List<string> _allLines;
         private string _currentCategory;
         private List<string> _guessedLetters;
+        private bool _isCurrentGameCounted;
 
         private bool _isAllChecked;
         private bool _isAnimalsChecked;
@@ -31,6 +33,9 @@ namespace Hangman.ViewModel
         private bool _isMoviesChecked;
         private bool _isFruitsChecked;
         private bool _isCarsChecked;
+
+
+        private User _currentUserObj;
 
         public bool IsAllChecked
         {
@@ -121,6 +126,8 @@ namespace Hangman.ViewModel
         public ICommand GuessLetterCommand { get; private set; }
         public ICommand ChangeCategoryCommand { get; private set; }
         public ICommand NewGameCommand { get; private set; }
+        public ICommand AboutCommand { get; private set; }
+        public ICommand ShowStatisticsCommand { get; private set; }
 
         public GameLogic(User currentUser)
         {
@@ -128,6 +135,7 @@ namespace Hangman.ViewModel
             {
                 UserName = currentUser.Name;
                 UserImagePath = currentUser.ProfileImagePath;
+                _currentUserObj = currentUser;
             }
 
             Level = 1;
@@ -140,6 +148,8 @@ namespace Hangman.ViewModel
             GuessLetterCommand = new RelayCommand(GuessLetter, CanGuessLetter);
             ChangeCategoryCommand = new RelayCommand(ChangeCategory);
             NewGameCommand = new RelayCommand(NewGame);
+            AboutCommand = new RelayCommand(ShowAbout);
+            ShowStatisticsCommand = new RelayCommand(ShowStatistics);
 
             InitTimer();
             LoadWords();
@@ -171,6 +181,10 @@ namespace Hangman.ViewModel
                 _timer.Stop();
             }
             StartNewGame();
+        }
+        private void ShowAbout(object parameter)
+        {
+            MessageBox.Show("Paleu Anca-Nicoleta 10LF243 Informatica", "About", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void ChangeCategory(object parameter)
@@ -219,6 +233,25 @@ namespace Hangman.ViewModel
             }
         }
 
+        private void ShowStatistics(object parameter)
+        {
+            bool wasTimerRunning = false;
+            if (_timer != null && _timer.IsEnabled)
+            {
+                _timer.Stop();
+                wasTimerRunning = true;
+            }
+
+            View.StatisticsWindow statsWindow = new View.StatisticsWindow();
+            statsWindow.DataContext = new StatisticsLogic(_currentUserObj);
+            statsWindow.ShowDialog();
+
+            if (wasTimerRunning)
+            {
+                _timer.Start();
+            }
+        }
+
         private void StartNewGame()
         {
             Mistakes = 0;
@@ -227,7 +260,7 @@ namespace Hangman.ViewModel
             _guessedLetters.Clear();
             CommandManager.InvalidateRequerySuggested();
 
-            List<string> availableWords = new List<string>();
+            List<string> availableLines = new List<string>();
 
             for (int i = 0; i < _allLines.Count; i++)
             {
@@ -235,29 +268,29 @@ namespace Hangman.ViewModel
                 string[] parts = line.Split('|');
 
                 string categoryPart = parts[0];
-                string wordPart = parts[1];
 
                 if (_currentCategory == "All Categories")
                 {
-                    availableWords.Add(wordPart);
+                    availableLines.Add(line);
                 }
-                else
+                else if (categoryPart == _currentCategory.ToUpper())
                 {
-                    if (categoryPart == _currentCategory.ToUpper())
-                    {
-                        availableWords.Add(wordPart);
-                    }
+                    availableLines.Add(line);
                 }
             }
 
-            if (availableWords.Count > 0)
+            if (availableLines.Count > 0)
             {
                 Random rnd = new Random();
-                int index = rnd.Next(0, availableWords.Count);
-                _secretWord = availableWords[index];
+                int index = rnd.Next(0, availableLines.Count);
+                string[] selectedParts = availableLines[index].Split('|');
+
+                _secretWordCategory = selectedParts[0];
+                _secretWord = selectedParts[1];
             }
             else
             {
+                _secretWordCategory = "UNKNOWN";
                 _secretWord = "ERROR";
             }
 
@@ -271,8 +304,35 @@ namespace Hangman.ViewModel
             {
                 _timer.Start();
             }
-        }
 
+            _isCurrentGameCounted = false;
+        }
+        private void SaveDataToFile()
+        {
+            if (_currentUserObj == null || _currentUserObj.Statistics == null) return;
+
+            try
+            {
+                string filePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "users.json");
+                if (System.IO.File.Exists(filePath))
+                {
+                    string json = System.IO.File.ReadAllText(filePath);
+                    var users = System.Text.Json.JsonSerializer.Deserialize<System.Collections.ObjectModel.ObservableCollection<User>>(json);
+
+                    if (users != null)
+                    {
+                        var userToUpdate = users.FirstOrDefault(u => u.Name == _currentUserObj.Name);
+                        if (userToUpdate != null)
+                        {
+                            userToUpdate.Statistics = _currentUserObj.Statistics;
+                            string newJson = System.Text.Json.JsonSerializer.Serialize(users);
+                            System.IO.File.WriteAllText(filePath, newJson);
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
         private bool CanGuessLetter(object parameter)
         {
             if (parameter != null)
@@ -293,6 +353,18 @@ namespace Hangman.ViewModel
         private void GuessLetter(object parameter)
         {
             if (parameter == null) return;
+
+            if (_isCurrentGameCounted == false)
+            {
+                _isCurrentGameCounted = true;
+
+                var statPlayed = _currentUserObj?.Statistics?.FirstOrDefault(s => s.CategoryName.ToUpper() == _secretWordCategory.ToUpper());
+                if (statPlayed != null)
+                {
+                    statPlayed.GamesPlayed++;
+                    SaveDataToFile();
+                }
+            }
 
             string letter = parameter.ToString().ToUpper();
             bool found = false;
@@ -318,6 +390,13 @@ namespace Hangman.ViewModel
                 if (DisplayedWord.Contains("_") == false)
                 {
                     _timer.Stop();
+
+                    var statWon = _currentUserObj?.Statistics?.FirstOrDefault(s => s.CategoryName.ToUpper() == _secretWordCategory.ToUpper());
+                    if (statWon != null)
+                    {
+                        statWon.GamesWon++;
+                        SaveDataToFile();
+                    }
                     MessageBox.Show("You won! The word was: " + _secretWord);
                     StartNewGame();
                 }
