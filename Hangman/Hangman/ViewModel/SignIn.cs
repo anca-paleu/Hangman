@@ -3,6 +3,7 @@ using System.Windows.Input;
 using Hangman.Model;
 using System.IO;
 using System.Text.Json;
+using System.Linq;
 
 namespace Hangman.ViewModel
 {
@@ -93,14 +94,22 @@ namespace Hangman.ViewModel
 
         private void Play(object parameter)
         {
-            if (SelectedUser != null) 
+            if (SelectedUser != null)
             {
+                View.GameWindow gameWindow = new View.GameWindow(SelectedUser);
+                gameWindow.Show();
+
+                System.Windows.Window mainWindow = System.Windows.Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+                if (mainWindow != null)
+                {
+                    mainWindow.Close();
+                }
             }
         }
 
         private void Cancel(object parameter)
         {
-            SelectedUser = null;
+            System.Windows.Application.Current.Shutdown();
         }
 
         private void SaveUsers()

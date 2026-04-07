@@ -1,0 +1,201 @@
+﻿<Window x:Class="Hangman.View.GameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Hangman.View"
+        Title="Hangman - Play" Height="700" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#FFE6EE">
+
+    <Window.InputBindings>
+        <KeyBinding Key="A" Command="{Binding GuessLetterCommand}" CommandParameter="A"/>
+        <KeyBinding Key="B" Command="{Binding GuessLetterCommand}" CommandParameter="B"/>
+        <KeyBinding Key="C" Command="{Binding GuessLetterCommand}" CommandParameter="C"/>
+        <KeyBinding Key="D" Command="{Binding GuessLetterCommand}" CommandParameter="D"/>
+        <KeyBinding Key="E" Command="{Binding GuessLetterCommand}" CommandParameter="E"/>
+        <KeyBinding Key="F" Command="{Binding GuessLetterCommand}" CommandParameter="F"/>
+        <KeyBinding Key="G" Command="{Binding GuessLetterCommand}" CommandParameter="G"/>
+        <KeyBinding Key="H" Command="{Binding GuessLetterCommand}" CommandParameter="H"/>
+        <KeyBinding Key="I" Command="{Binding GuessLetterCommand}" CommandParameter="I"/>
+        <KeyBinding Key="J" Command="{Binding GuessLetterCommand}" CommandParameter="J"/>
+        <KeyBinding Key="K" Command="{Binding GuessLetterCommand}" CommandParameter="K"/>
+        <KeyBinding Key="L" Command="{Binding GuessLetterCommand}" CommandParameter="L"/>
+        <KeyBinding Key="M" Command="{Binding GuessLetterCommand}" CommandParameter="M"/>
+        <KeyBinding Key="N" Command="{Binding GuessLetterCommand}" CommandParameter="N"/>
+        <KeyBinding Key="O" Command="{Binding GuessLetterCommand}" CommandParameter="O"/>
+        <KeyBinding Key="P" Command="{Binding GuessLetterCommand}" CommandParameter="P"/>
+        <KeyBinding Key="Q" Command="{Binding GuessLetterCommand}" CommandParameter="Q"/>
+        <KeyBinding Key="R" Command="{Binding GuessLetterCommand}" CommandParameter="R"/>
+        <KeyBinding Key="S" Command="{Binding GuessLetterCommand}" CommandParameter="S"/>
+        <KeyBinding Key="T" Command="{Binding GuessLetterCommand}" CommandParameter="T"/>
+        <KeyBinding Key="U" Command="{Binding GuessLetterCommand}" CommandParameter="U"/>
+        <KeyBinding Key="V" Command="{Binding GuessLetterCommand}" CommandParameter="V"/>
+        <KeyBinding Key="W" Command="{Binding GuessLetterCommand}" CommandParameter="W"/>
+        <KeyBinding Key="X" Command="{Binding GuessLetterCommand}" CommandParameter="X"/>
+        <KeyBinding Key="Y" Command="{Binding GuessLetterCommand}" CommandParameter="Y"/>
+        <KeyBinding Key="Z" Command="{Binding GuessLetterCommand}" CommandParameter="Z"/>
+    </Window.InputBindings>
+
+    <Window.Resources>
+        <local:RelativePathConverter x:Key="RelativePathConverter"/>
+
+        <Style TargetType="Button" x:Key="LetterButton">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#D6336C"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#FFB3C6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="48"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Margin" Value="4"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFD1DC"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Visibility" Value="Hidden"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" Background="#FFD6E8" FontSize="14" FontWeight="Bold" Foreground="#B00050" Padding="5">
+            <MenuItem Header="File">
+                <MenuItem Header="New Game"/>
+                <MenuItem Header="Open Game"/>
+                <MenuItem Header="Save Game"/>
+                <Separator/>
+                <MenuItem Header="Statistics"/>
+                <Separator/>
+                <MenuItem Header="Cancel"/>
+            </MenuItem>
+            <MenuItem Header="Categories">
+                <MenuItem Header="All Categories" IsCheckable="True" IsChecked="{Binding IsAllChecked}" Command="{Binding ChangeCategoryCommand}" CommandParameter="All Categories"/>
+                <MenuItem Header="Animals" IsCheckable="True" IsChecked="{Binding IsAnimalsChecked}" Command="{Binding ChangeCategoryCommand}" CommandParameter="Animals"/>
+                <MenuItem Header="Countries" IsCheckable="True" IsChecked="{Binding IsCountriesChecked}" Command="{Binding ChangeCategoryCommand}" CommandParameter="Countries"/>
+                <MenuItem Header="Movies" IsCheckable="True" IsChecked="{Binding IsMoviesChecked}" Command="{Binding ChangeCategoryCommand}" CommandParameter="Movies"/>
+                <MenuItem Header="Fruits" IsCheckable="True" IsChecked="{Binding IsFruitsChecked}" Command="{Binding ChangeCategoryCommand}" CommandParameter="Fruits"/>
+                <MenuItem Header="Cars" IsCheckable="True" IsChecked="{Binding IsCarsChecked}" Command="{Binding ChangeCategoryCommand}" CommandParameter="Cars"/>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="About"/>
+            </MenuItem>
+        </Menu>
+
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="White" CornerRadius="30" Width="55" Height="55" Padding="3"
+                            BorderBrush="#FFB3C6" BorderThickness="2">
+                        <Image Source="{Binding UserImagePath, Converter={StaticResource RelativePathConverter}}" 
+                               Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
+                    <TextBlock Text="{Binding UserName}" FontSize="18" FontWeight="Bold" Foreground="#B00050"
+                               VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Border Background="White" CornerRadius="10" Padding="10,5" BorderBrush="#FFB3C6"
+                            BorderThickness="2" Margin="0,0,0,5">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⏱ " FontSize="16" Foreground="#D6336C" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding TimeLeft}" FontSize="16" Foreground="#B00050" FontWeight="Bold"/>
+                            <TextBlock Text=" sec" FontSize="16" Foreground="#D6336C" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="White" CornerRadius="10" Padding="10,5" BorderBrush="#FFB3C6" BorderThickness="2">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Level: " FontSize="16" Foreground="#D6336C" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Level}" FontSize="16" Foreground="#B00050" FontWeight="Bold"/>
+                            <TextBlock Text=" / 3" FontSize="16" Foreground="#D6336C" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Background="White" CornerRadius="15" Margin="0,0,10,0"
+                        BorderBrush="#FFB3C6" BorderThickness="2">
+                    <Image Source="{Binding HangmanImage, Converter={StaticResource RelativePathConverter}}" 
+                           Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding DisplayedWord}" FontSize="48" FontWeight="Black"
+                               Foreground="#B00050" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+
+                    <Border Background="White" CornerRadius="10" Padding="15,8" BorderBrush="#FFB3C6"
+                            BorderThickness="2" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Mistakes: " FontSize="20" FontWeight="Bold" Foreground="#D6336C"/>
+                            <TextBlock Text="{Binding Mistakes}" FontSize="20" FontWeight="Bold" Foreground="#D6336C"/>
+                            <TextBlock Text=" / 6" FontSize="20" FontWeight="Bold" Foreground="#D6336C"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="2" Background="White" CornerRadius="15" Padding="15"
+                    BorderBrush="#FFB3C6" BorderThickness="2">
+                <StackPanel>
+                    <TextBlock Text="Pick a letter:" FontSize="16" FontWeight="Bold"
+                               Foreground="#D6336C" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    <StackPanel HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="A" Command="{Binding GuessLetterCommand}" CommandParameter="A" Style="{StaticResource LetterButton}"/>
+                            <Button Content="B" Command="{Binding GuessLetterCommand}" CommandParameter="B" Style="{StaticResource LetterButton}"/>
+                            <Button Content="C" Command="{Binding GuessLetterCommand}" CommandParameter="C" Style="{StaticResource LetterButton}"/>
+                            <Button Content="D" Command="{Binding GuessLetterCommand}" CommandParameter="D" Style="{StaticResource LetterButton}"/>
+                            <Button Content="E" Command="{Binding GuessLetterCommand}" CommandParameter="E" Style="{StaticResource LetterButton}"/>
+                            <Button Content="F" Command="{Binding GuessLetterCommand}" CommandParameter="F" Style="{StaticResource LetterButton}"/>
+                            <Button Content="G" Command="{Binding GuessLetterCommand}" CommandParameter="G" Style="{StaticResource LetterButton}"/>
+                            <Button Content="H" Command="{Binding GuessLetterCommand}" CommandParameter="H" Style="{StaticResource LetterButton}"/>
+                            <Button Content="I" Command="{Binding GuessLetterCommand}" CommandParameter="I" Style="{StaticResource LetterButton}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="J" Command="{Binding GuessLetterCommand}" CommandParameter="J" Style="{StaticResource LetterButton}"/>
+                            <Button Content="K" Command="{Binding GuessLetterCommand}" CommandParameter="K" Style="{StaticResource LetterButton}"/>
+                            <Button Content="L" Command="{Binding GuessLetterCommand}" CommandParameter="L" Style="{StaticResource LetterButton}"/>
+                            <Button Content="M" Command="{Binding GuessLetterCommand}" CommandParameter="M" Style="{StaticResource LetterButton}"/>
+                            <Button Content="N" Command="{Binding GuessLetterCommand}" CommandParameter="N" Style="{StaticResource LetterButton}"/>
+                            <Button Content="O" Command="{Binding GuessLetterCommand}" CommandParameter="O" Style="{StaticResource LetterButton}"/>
+                            <Button Content="P" Command="{Binding GuessLetterCommand}" CommandParameter="P" Style="{StaticResource LetterButton}"/>
+                            <Button Content="Q" Command="{Binding GuessLetterCommand}" CommandParameter="Q" Style="{StaticResource LetterButton}"/>
+                            <Button Content="R" Command="{Binding GuessLetterCommand}" CommandParameter="R" Style="{StaticResource LetterButton}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="S" Command="{Binding GuessLetterCommand}" CommandParameter="S" Style="{StaticResource LetterButton}"/>
+                            <Button Content="T" Command="{Binding GuessLetterCommand}" CommandParameter="T" Style="{StaticResource LetterButton}"/>
+                            <Button Content="U" Command="{Binding GuessLetterCommand}" CommandParameter="U" Style="{StaticResource LetterButton}"/>
+                            <Button Content="V" Command="{Binding GuessLetterCommand}" CommandParameter="V" Style="{StaticResource LetterButton}"/>
+                            <Button Content="W" Command="{Binding GuessLetterCommand}" CommandParameter="W" Style="{StaticResource LetterButton}"/>
+                            <Button Content="X" Command="{Binding GuessLetterCommand}" CommandParameter="X" Style="{StaticResource LetterButton}"/>
+                            <Button Content="Y" Command="{Binding GuessLetterCommand}" CommandParameter="Y" Style="{StaticResource LetterButton}"/>
+                            <Button Content="Z" Command="{Binding GuessLetterCommand}" CommandParameter="Z" Style="{StaticResource LetterButton}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </Grid>
+    </DockPanel>
+</Window>
