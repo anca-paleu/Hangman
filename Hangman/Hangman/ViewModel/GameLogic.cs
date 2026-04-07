@@ -120,6 +120,7 @@ namespace Hangman.ViewModel
 
         public ICommand GuessLetterCommand { get; private set; }
         public ICommand ChangeCategoryCommand { get; private set; }
+        public ICommand NewGameCommand { get; private set; }
 
         public GameLogic(User currentUser)
         {
@@ -138,6 +139,7 @@ namespace Hangman.ViewModel
 
             GuessLetterCommand = new RelayCommand(GuessLetter, CanGuessLetter);
             ChangeCategoryCommand = new RelayCommand(ChangeCategory);
+            NewGameCommand = new RelayCommand(NewGame);
 
             InitTimer();
             LoadWords();
@@ -160,6 +162,15 @@ namespace Hangman.ViewModel
                 MessageBox.Show("Time is up! Game Over.");
                 StartNewGame();
             }
+        }
+
+        private void NewGame(object parameter)
+        {
+            if (_timer != null)
+            {
+                _timer.Stop();
+            }
+            StartNewGame();
         }
 
         private void ChangeCategory(object parameter)
