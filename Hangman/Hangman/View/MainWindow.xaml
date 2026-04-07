@@ -2,78 +2,145 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Hangman.View"
-        Title="Hangman - Sign In" Height="500" Width="700"
+        Title="Hangman - Sign In" Height="600" Width="850"
         WindowStartupLocation="CenterScreen"
-        Background="#FFE6EE">
+        Background="#FFF0F5">
+
     <Window.Resources>
         <local:RelativePathConverter x:Key="RelativePathConverter"/>
-        <Style TargetType="Button">
+
+        <Style TargetType="Button" x:Key="ModernButton">
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="#D6336C"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="10,8"/>
             <Setter Property="Margin" Value="10,0"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#FFB3C6"/>
+            <Setter Property="Width" Value="130"/>
+            <Setter Property="Height" Value="45"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="#FFB3C6" BorderThickness="2" 
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#FFD1DC"/>
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Opacity" Value="0.4"/>
-                    <Setter Property="Background" Value="#F2F2F2"/>
-                    <Setter Property="BorderBrush" Value="#D9D9D9"/>
-                    <Setter Property="Foreground" Value="#999999"/>
+                    <Setter Property="Opacity" Value="0.5"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <Style TargetType="ListBox">
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="Margin" Value="5"/>
+
+        <Style TargetType="Button" BasedOn="{StaticResource ModernButton}" x:Key="PlayButton">
+            <Setter Property="Background" Value="#D6336C"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#B00050"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#B00050"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Margin" Value="15,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="ProfileBorder" Background="Transparent" CornerRadius="15" Padding="10">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ProfileBorder" Property="Background" Value="#FFE6EE"/>
+                                <Setter TargetName="ProfileBorder" Property="BorderBrush" Value="#FFB3C6"/>
+                                <Setter TargetName="ProfileBorder" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ProfileBorder" Property="Background" Value="#FFF0F5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
-    <Grid Margin="30">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Grid>
+        <Border Background="White" CornerRadius="25" Margin="40,40,40,40" Padding="30,30,30,30" VerticalAlignment="Stretch">
+            <Border.Effect>
+                <DropShadowEffect Color="#FFB3C6" BlurRadius="25" ShadowDepth="5" Opacity="0.4"/>
+            </Border.Effect>
 
-        <TextBlock Grid.Row="0" Text="Welcome to Hangman!" 
-                   FontSize="32" FontWeight="Black" Foreground="#B00050" 
-                   HorizontalAlignment="Center" Margin="0,0,0,30"/>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="40"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Text="HANGMAN" 
+                           FontSize="38" FontWeight="Black" Foreground="#B00050" 
+                           HorizontalAlignment="Center" Margin="0,0,0,5"/>
 
-            <Border Grid.Column="0" Background="White" CornerRadius="15" Padding="15">
-                <ListBox ItemsSource="{Binding Users}" 
+                <TextBlock Grid.Row="1" Text="Who's playing today?" 
+                           FontSize="18" FontWeight="Medium" Foreground="#D6336C" 
+                           HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                <ListBox Grid.Row="2" ItemsSource="{Binding Users}" 
                          SelectedItem="{Binding SelectedUser, Mode=TwoWay}" 
-                         DisplayMemberPath="Name"/>
-            </Border>
+                         Background="Transparent" BorderThickness="0" 
+                         HorizontalAlignment="Center" VerticalAlignment="Center"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+                         ScrollViewer.VerticalScrollBarVisibility="Disabled">
 
-            <Border Grid.Column="2" Background="White" CornerRadius="15" Padding="15">
-                <Image Source="{Binding SelectedUser.ProfileImagePath, Converter={StaticResource RelativePathConverter}}" 
-                       Stretch="Uniform" 
-                       RenderOptions.BitmapScalingMode="HighQuality"
-                       Margin="5"/>
-            </Border>
-        </Grid>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
-            <Button Content="New User" Command="{Binding NewUserCommand}" Width="120"/>
-            <Button Content="Delete User" Command="{Binding DeleteUserCommand}" Width="120"/>
-            <Button Content="Play" Command="{Binding PlayCommand}" Width="120"/>
-            <Button Content="Cancel" Command="{Binding CancelCommand}" Width="120"/>
-        </StackPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel HorizontalAlignment="Center" Width="100">
+                                <Border Width="80" Height="80" CornerRadius="40" BorderBrush="#FFB3C6" BorderThickness="3" Background="White" Margin="0,0,0,10">
+                                    <Border CornerRadius="37">
+                                        <Border.OpacityMask>
+                                            <VisualBrush Stretch="Uniform">
+                                                <VisualBrush.Visual>
+                                                    <Ellipse Fill="Black" Width="74" Height="74"/>
+                                                </VisualBrush.Visual>
+                                            </VisualBrush>
+                                        </Border.OpacityMask>
+                                        <Image Source="{Binding ProfileImagePath, Converter={StaticResource RelativePathConverter}}" 
+                                               Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    </Border>
+                                </Border>
+
+                                <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" Foreground="#B00050" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
+                    <Button Content="New User" Command="{Binding NewUserCommand}" Style="{StaticResource ModernButton}"/>
+                    <Button Content="Delete User" Command="{Binding DeleteUserCommand}" Style="{StaticResource ModernButton}"/>
+                    <Button Content="PLAY" Command="{Binding PlayCommand}" Style="{StaticResource PlayButton}" Width="150"/>
+                    <Button Content="Exit" Command="{Binding CancelCommand}" Style="{StaticResource ModernButton}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Window>
