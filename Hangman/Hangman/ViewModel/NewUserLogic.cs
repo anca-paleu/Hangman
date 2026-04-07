@@ -93,25 +93,28 @@ namespace Hangman.ViewModel
 
         private void LoadAvailableAvatars()
         {
+            if (_availableAvatars != null)
+            {
+                _availableAvatars.Clear();
+            }
+
             string baseFolder = AppDomain.CurrentDomain.BaseDirectory;
             string imagesPath = Path.Combine(baseFolder, "Images");
 
-            if (Directory.Exists(imagesPath))
+            for (int i = 0; i <= 9; i++)
             {
-                string[] files = Directory.GetFiles(imagesPath, "*.*", SearchOption.TopDirectoryOnly);
-                foreach (string file in files)
+                string fullPath = Path.Combine(imagesPath, "avatar" + i + ".jpg");
+
+                if (File.Exists(fullPath))
                 {
-                    string extension = Path.GetExtension(file).ToLower();
-                    if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif")
-                    {
-                        _availableAvatars.Add(file);
-                    }
+                    _availableAvatars.Add(fullPath);
                 }
             }
 
-            if (_availableAvatars.Count == 0)
+            if (_availableAvatars.Count > 0)
             {
-                System.Windows.MessageBox.Show("Images does not exist!");
+                _currentAvatarIndex = 0;
+                User newUser = new User(Username, _availableAvatars[_currentAvatarIndex]);
             }
         }
 

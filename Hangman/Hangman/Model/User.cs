@@ -8,6 +8,7 @@ namespace Hangman.Model
         private string _name;
         private string _profileImagePath;
         private ObservableCollection<Statistics> _statistics;
+        private ObservableCollection<SavedGame> _savedGames;
 
         public string Name
         {
@@ -25,6 +26,11 @@ namespace Hangman.Model
         {
             get { return _statistics; }
             set { _statistics = value; OnPropertyChanged(); }
+        }
+        public ObservableCollection<SavedGame> SavedGames
+        {
+            get { return _savedGames; }
+            set { _savedGames = value; OnPropertyChanged(); }
         }
 
         public User()

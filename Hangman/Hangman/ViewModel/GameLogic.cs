@@ -20,6 +20,7 @@ namespace Hangman.ViewModel
         private string _displayedWord;
         private string _secretWord;
         private string _secretWordCategory;
+        private string _currentSaveName;
 
         private DispatcherTimer _timer;
         private List<string> _allLines;
@@ -129,6 +130,10 @@ namespace Hangman.ViewModel
         public ICommand AboutCommand { get; private set; }
         public ICommand ShowStatisticsCommand { get; private set; }
 
+        public ICommand CancelCommand { get; private set; }
+        public ICommand SaveGameCommand { get; private set; }
+        public ICommand OpenGameCommand { get; private set; }
+
         public GameLogic(User currentUser)
         {
             if (currentUser != null)
@@ -150,6 +155,9 @@ namespace Hangman.ViewModel
             NewGameCommand = new RelayCommand(NewGame);
             AboutCommand = new RelayCommand(ShowAbout);
             ShowStatisticsCommand = new RelayCommand(ShowStatistics);
+            CancelCommand = new RelayCommand(CancelGame);
+            SaveGameCommand = new RelayCommand(SaveGame);
+            OpenGameCommand = new RelayCommand(OpenGame);
 
             InitTimer();
             LoadWords();
@@ -309,7 +317,7 @@ namespace Hangman.ViewModel
         }
         private void SaveDataToFile()
         {
-            if (_currentUserObj == null || _currentUserObj.Statistics == null) return;
+            if (_currentUserObj == null) return;
 
             try
             {
@@ -325,6 +333,9 @@ namespace Hangman.ViewModel
                         if (userToUpdate != null)
                         {
                             userToUpdate.Statistics = _currentUserObj.Statistics;
+
+                            userToUpdate.SavedGames = _currentUserObj.SavedGames;
+
                             string newJson = System.Text.Json.JsonSerializer.Serialize(users);
                             System.IO.File.WriteAllText(filePath, newJson);
                         }
@@ -397,6 +408,7 @@ namespace Hangman.ViewModel
                         statWon.GamesWon++;
                         SaveDataToFile();
                     }
+                    Level++;
                     MessageBox.Show("You won! The word was: " + _secretWord);
                     StartNewGame();
                 }
@@ -411,6 +423,120 @@ namespace Hangman.ViewModel
                     StartNewGame();
                 }
             }
+        }
+
+        private void CancelGame(object parameter)
+        {
+            if (_timer != null && _timer.IsEnabled)
+            {
+                _timer.Stop();
+            }
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+
+            System.Windows.Window gameWindow = System.Windows.Application.Current.Windows.OfType<View.GameWindow>().FirstOrDefault();
+            if (gameWindow != null)
+            {
+                gameWindow.Close();
+            }
+        }
+        private void SaveGame(object parameter)
+        {
+            bool wasRunning = _timer != null && _timer.IsEnabled;
+            if (wasRunning) _timer.Stop();
+
+            View.SaveGameWindow saveWindow = new View.SaveGameWindow();
+            SaveDialogLogic saveLogic = new SaveDialogLogic();
+
+            saveWindow.DataContext = saveLogic;
+            saveWindow.ShowDialog();
+
+            if (saveLogic.IsConfirmed)
+            {
+                if (_currentUserObj.SavedGames == null)
+                    _currentUserObj.SavedGames = new System.Collections.ObjectModel.ObservableCollection<SavedGame>();
+
+                var existingSave = _currentUserObj.SavedGames.FirstOrDefault(s => s.SaveName.ToLower() == saveLogic.SaveName.ToLower());
+
+                if (existingSave != null)
+                {
+                    MessageBox.Show("A saved game with this name already exists!\nPlease choose a different name.", "Duplicate Name", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    SavedGame newSave = new SavedGame
+                    {
+                        SaveName = saveLogic.SaveName,
+                        SecretWord = _secretWord,
+                        DisplayedWord = DisplayedWord,
+                        Mistakes = Mistakes,
+                        Level = Level,
+                        TimeLeft = TimeLeft,
+                        Category = _secretWordCategory,
+                        GuessedLetters = new List<string>(_guessedLetters),
+                        IsCounted = _isCurrentGameCounted
+                    };
+
+                    _currentUserObj.SavedGames.Add(newSave);
+                    SaveDataToFile();
+                    MessageBox.Show("Game saved successfully!", "Save", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+
+            if (wasRunning) _timer.Start();
+        }
+        private void OpenGame(object parameter)
+        {
+            bool wasRunning = _timer != null && _timer.IsEnabled;
+            if (wasRunning) _timer.Stop();
+
+            if (_currentUserObj.SavedGames == null || _currentUserObj.SavedGames.Count == 0)
+            {
+                MessageBox.Show("You have no saved games.", "Open Game", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (wasRunning) _timer.Start();
+                return;
+            }
+
+            View.OpenGameWindow openWindow = new View.OpenGameWindow();
+            OpenDialogLogic openLogic = new OpenDialogLogic(_currentUserObj.SavedGames);
+            openWindow.DataContext = openLogic;
+            openWindow.ShowDialog();
+
+            if (openLogic.IsConfirmed && openLogic.SelectedGame != null)
+            {
+                LoadGameState(openLogic.SelectedGame);
+            }
+            else
+            {
+                if (wasRunning) _timer.Start();
+            }
+        }
+
+        private void LoadGameState(SavedGame saved)
+        {
+            if (_timer != null) _timer.Stop();
+
+            _secretWord = saved.SecretWord;
+            DisplayedWord = saved.DisplayedWord;
+            Mistakes = saved.Mistakes;
+            Level = saved.Level;
+            TimeLeft = saved.TimeLeft;
+            _secretWordCategory = saved.Category;
+            _guessedLetters = new List<string>(saved.GuessedLetters);
+            _isCurrentGameCounted = saved.IsCounted;
+
+            _currentCategory = _secretWordCategory == "UNKNOWN" ? "All Categories" : _secretWordCategory;
+            IsAllChecked = _currentCategory == "All Categories";
+            IsAnimalsChecked = _currentCategory == "ANIMALS";
+            IsCountriesChecked = _currentCategory == "COUNTRIES";
+            IsMoviesChecked = _currentCategory == "MOVIES";
+            IsFruitsChecked = _currentCategory == "FRUITS";
+            IsCarsChecked = _currentCategory == "CARS";
+
+            CommandManager.InvalidateRequerySuggested();
+
+            if (_timer != null) _timer.Start();
+            _currentSaveName = saved.SaveName;
         }
     }
 }
