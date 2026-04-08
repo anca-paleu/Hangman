@@ -188,6 +188,7 @@ namespace Hangman.ViewModel
             {
                 _timer.Stop();
             }
+            Level = 1;
             StartNewGame();
         }
         private void ShowAbout(object parameter)
@@ -220,6 +221,7 @@ namespace Hangman.ViewModel
                     _timer.Stop();
                 }
 
+                Level = 1;
                 StartNewGame();
             }
         }
@@ -365,18 +367,6 @@ namespace Hangman.ViewModel
         {
             if (parameter == null) return;
 
-            if (_isCurrentGameCounted == false)
-            {
-                _isCurrentGameCounted = true;
-
-                var statPlayed = _currentUserObj?.Statistics?.FirstOrDefault(s => s.CategoryName.ToUpper() == _secretWordCategory.ToUpper());
-                if (statPlayed != null)
-                {
-                    statPlayed.GamesPlayed++;
-                    SaveDataToFile();
-                }
-            }
-
             string letter = parameter.ToString().ToUpper();
             bool found = false;
 
@@ -402,14 +392,30 @@ namespace Hangman.ViewModel
                 {
                     _timer.Stop();
 
-                    var statWon = _currentUserObj?.Statistics?.FirstOrDefault(s => s.CategoryName.ToUpper() == _secretWordCategory.ToUpper());
-                    if (statWon != null)
+                    if (Level == 3)
                     {
-                        statWon.GamesWon++;
-                        SaveDataToFile();
+                        if (_currentUserObj != null && _currentUserObj.Statistics != null)
+                        {
+                            for (int i = 0; i < _currentUserObj.Statistics.Count; i++)
+                            {
+                                if (_currentUserObj.Statistics[i].CategoryName.ToUpper() == _secretWordCategory.ToUpper())
+                                {
+                                    _currentUserObj.Statistics[i].GamesWon++;
+                                    _currentUserObj.Statistics[i].GamesPlayed++;
+                                }
+                            }
+                            SaveDataToFile();
+                        }
+
+                        MessageBox.Show("You won the game!", "Victory");
+                        Level = 1;
                     }
-                    Level++;
-                    MessageBox.Show("You won! The word was: " + _secretWord);
+                    else
+                    {
+                        Level++;
+                        MessageBox.Show("You guessed the word! Proceeding to level " + Level + ".");
+                    }
+
                     StartNewGame();
                 }
             }
@@ -419,7 +425,21 @@ namespace Hangman.ViewModel
                 if (Mistakes == 6)
                 {
                     _timer.Stop();
-                    MessageBox.Show("Game Over! The word was: " + _secretWord);
+
+                    if (_currentUserObj != null && _currentUserObj.Statistics != null)
+                    {
+                        for (int i = 0; i < _currentUserObj.Statistics.Count; i++)
+                        {
+                            if (_currentUserObj.Statistics[i].CategoryName.ToUpper() == _secretWordCategory.ToUpper())
+                            {
+                                _currentUserObj.Statistics[i].GamesPlayed++;
+                            }
+                        }
+                        SaveDataToFile();
+                    }
+
+                    MessageBox.Show("Game Over! The word was: " + _secretWord, "Defeat");
+                    Level = 1;
                     StartNewGame();
                 }
             }
