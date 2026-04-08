@@ -33,6 +33,11 @@
         <KeyBinding Key="X" Command="{Binding GuessLetterCommand}" CommandParameter="X"/>
         <KeyBinding Key="Y" Command="{Binding GuessLetterCommand}" CommandParameter="Y"/>
         <KeyBinding Key="Z" Command="{Binding GuessLetterCommand}" CommandParameter="Z"/>
+        <KeyBinding Modifiers="Ctrl" Key="N" Command="{Binding NewGameCommand}"/>
+        <KeyBinding Modifiers="Ctrl" Key="O" Command="{Binding OpenGameCommand}"/>
+        <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding SaveGameCommand}"/>
+        <KeyBinding Modifiers="Ctrl" Key="I" Command="{Binding ShowStatisticsCommand}"/>
+        <KeyBinding Key="Esc" Command="{Binding CancelCommand}"/>
     </Window.InputBindings>
 
     <Window.Resources>
@@ -63,13 +68,13 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top" Background="#FFD6E8" FontSize="14" FontWeight="Bold" Foreground="#B00050" Padding="5">
             <MenuItem Header="File">
-                <MenuItem Header="New Game" Command="{Binding NewGameCommand}"/>
-                <MenuItem Header="Open Game" Command="{Binding OpenGameCommand}"/>
-                <MenuItem Header="Save Game" Command="{Binding SaveGameCommand}"/>
+                <MenuItem Header="New Game" Command="{Binding NewGameCommand}" InputGestureText="Ctrl+N"/>
+                <MenuItem Header="Open Game" Command="{Binding OpenGameCommand}" InputGestureText="Ctrl+O"/>
+                <MenuItem Header="Save Game" Command="{Binding SaveGameCommand}" InputGestureText="Ctrl+S"/>
                 <Separator/>
-                <MenuItem Header="Statistics" Command="{Binding ShowStatisticsCommand}"/>
+                <MenuItem Header="Statistics" Command="{Binding ShowStatisticsCommand}" InputGestureText="Ctrl+I"/>
                 <Separator/>
-                <MenuItem Header="Cancel" Command="{Binding CancelCommand}"/>
+                <MenuItem Header="Cancel" Command="{Binding CancelCommand}" InputGestureText="Esc"/>
             </MenuItem>
             <MenuItem Header="Categories">
                 <MenuItem Header="All Categories" IsCheckable="True" IsChecked="{Binding IsAllChecked}" Command="{Binding ChangeCategoryCommand}" CommandParameter="All Categories"/>
