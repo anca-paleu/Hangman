@@ -34,6 +34,7 @@ namespace Hangman.ViewModel
         private bool _isMoviesChecked;
         private bool _isFruitsChecked;
         private bool _isCarsChecked;
+        private const int MaxMistakes = 6;
 
 
         private User _currentUserObj;
@@ -116,7 +117,7 @@ namespace Hangman.ViewModel
             set
             {
                 _mistakes = value;
-                if (_mistakes >= 0 && _mistakes <= 6)
+                if (_mistakes >= 0 && _mistakes <= MaxMistakes)
                 {
                     HangmanImage = "Images/game" + _mistakes + ".jpg";
                 }
@@ -394,18 +395,7 @@ namespace Hangman.ViewModel
 
                     if (Level == 3)
                     {
-                        if (_currentUserObj != null && _currentUserObj.Statistics != null)
-                        {
-                            for (int i = 0; i < _currentUserObj.Statistics.Count; i++)
-                            {
-                                if (_currentUserObj.Statistics[i].CategoryName.ToUpper() == _secretWordCategory.ToUpper())
-                                {
-                                    _currentUserObj.Statistics[i].GamesWon++;
-                                    _currentUserObj.Statistics[i].GamesPlayed++;
-                                }
-                            }
-                            SaveDataToFile();
-                        }
+                        UpdateUserStatistics(true);
 
                         MessageBox.Show("You won the game!", "Victory");
                         Level = 1;
@@ -422,21 +412,12 @@ namespace Hangman.ViewModel
             else
             {
                 Mistakes = Mistakes + 1;
-                if (Mistakes == 6)
+
+                if (Mistakes == MaxMistakes)
                 {
                     _timer.Stop();
 
-                    if (_currentUserObj != null && _currentUserObj.Statistics != null)
-                    {
-                        for (int i = 0; i < _currentUserObj.Statistics.Count; i++)
-                        {
-                            if (_currentUserObj.Statistics[i].CategoryName.ToUpper() == _secretWordCategory.ToUpper())
-                            {
-                                _currentUserObj.Statistics[i].GamesPlayed++;
-                            }
-                        }
-                        SaveDataToFile();
-                    }
+                    UpdateUserStatistics(false);
 
                     MessageBox.Show("Game Over! The word was: " + _secretWord, "Defeat");
                     Level = 1;
@@ -458,6 +439,25 @@ namespace Hangman.ViewModel
             if (gameWindow != null)
             {
                 gameWindow.Close();
+            }
+        }
+        private void UpdateUserStatistics(bool isWin)
+        {
+            if (_currentUserObj != null && _currentUserObj.Statistics != null)
+            {
+                for (int i = 0; i < _currentUserObj.Statistics.Count; i++)
+                {
+                    if (_currentUserObj.Statistics[i].CategoryName.ToUpper() == _secretWordCategory.ToUpper())
+                    {
+                        _currentUserObj.Statistics[i].GamesPlayed++;
+                        if (isWin == true)
+                        {
+                            _currentUserObj.Statistics[i].GamesWon++;
+                        }
+                        break;
+                    }
+                }
+                SaveDataToFile();
             }
         }
         private void SaveGame(object parameter)
