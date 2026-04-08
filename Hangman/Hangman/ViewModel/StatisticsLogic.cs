@@ -1,27 +1,29 @@
 ﻿using Hangman.Model;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace Hangman.ViewModel
 {
     public class StatisticsLogic : ObservableObject
     {
-        private User _currentUser;
+        private ObservableCollection<User> _allUsers;
 
-        public User CurrentUser
+        public ObservableCollection<User> AllUsers
         {
-            get { return _currentUser; }
-            set { _currentUser = value; OnPropertyChanged(); }
+            get { return _allUsers; }
+            set { _allUsers = value; OnPropertyChanged(); }
         }
 
         public ICommand CloseCommand { get; private set; }
 
-        public StatisticsLogic(User user)
+        public StatisticsLogic(ObservableCollection<User> allUsers)
         {
-            CurrentUser = user;
+            AllUsers = allUsers;
 
-            if (CurrentUser.Statistics == null || CurrentUser.Statistics.Count == 0)
+            foreach (var user in AllUsers)
             {
-                CurrentUser.InitStatistics();
+                if (user.Statistics == null || user.Statistics.Count == 0)
+                    user.InitStatistics();
             }
 
             CloseCommand = new RelayCommand(CloseWindow);
@@ -30,9 +32,7 @@ namespace Hangman.ViewModel
         private void CloseWindow(object parameter)
         {
             if (parameter is System.Windows.Window window)
-            {
                 window.Close();
-            }
         }
     }
 }

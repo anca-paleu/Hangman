@@ -178,6 +178,8 @@ namespace Hangman.ViewModel
             if (TimeLeft == 0)
             {
                 _timer.Stop();
+                UpdateUserStatistics(false);
+                Level = 1;
                 MessageBox.Show("Time is up! Game Over.");
                 StartNewGame();
             }
@@ -252,17 +254,27 @@ namespace Hangman.ViewModel
                 _timer.Stop();
                 wasTimerRunning = true;
             }
+            var allUsers = new System.Collections.ObjectModel.ObservableCollection<User>();
+            try
+            {
+                string filePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "users.json");
+                if (System.IO.File.Exists(filePath))
+                {
+                    string json = System.IO.File.ReadAllText(filePath);
+                    var loaded = System.Text.Json.JsonSerializer.Deserialize<System.Collections.ObjectModel.ObservableCollection<User>>(json);
+                    if (loaded != null)
+                        allUsers = loaded;
+                }
+            }
+            catch { }
 
             View.StatisticsWindow statsWindow = new View.StatisticsWindow();
-            statsWindow.DataContext = new StatisticsLogic(_currentUserObj);
+            statsWindow.DataContext = new StatisticsLogic(allUsers);
             statsWindow.ShowDialog();
 
             if (wasTimerRunning)
-            {
                 _timer.Start();
-            }
         }
-
         private void StartNewGame()
         {
             Mistakes = 0;
